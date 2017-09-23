@@ -1,8 +1,8 @@
 clear
 % data_set = struct2cell(load('xor2.mat'));
 % numClassLabel = 2;
-data_set = struct2cell(load('cross.mat'));
-numClassLabel = 2;
+data_set = struct2cell(load('iris.mat'));
+numClassLabel = 3;
 data_set = data_set{1};
 data_crossed = crossValidation(data_set,numClassLabel);
 data = cell(10,2);
@@ -29,7 +29,7 @@ for i = 1:10
         truthTable{i,j} = zeros(numClassLabel,numClassLabel);
     end
 end
-%initial
+%initialization
 for i = 2:size(weight,2)
     for m = 1:size(weight{i},1)
         for n = 1:size(weight{i},2)
@@ -52,14 +52,20 @@ for i = 1:10
     numTrain = numTrain + size(data{i},1);
 end
 E = zeros(numTrain,1);
+iGraph = 1;
 %Train
-while epoch < 1000
+while epoch < 500
     indexE = 1;
     for train = 1 : 10
+        %%%%%%%%
+        perm = randperm(size(data{train,1},1));
+        %%%%%%%%
         for n = 1:size(data{train,1},1)
             d = zeros(1,numClassLabel); 
-            d(data{train,1}(n,size(data{train,1},2))) = 1;
-            y{1} = data{train,1}(n,1:size(data{train,1},2)-1);
+            d(data{train,1}(perm(n),size(data{train,1},2))) = 1;
+            y{1} = data{train,1}(perm(n),1:size(data{train,1},2)-1);
+%             d(data{train,1}(n,size(data{train,1},2))) = 1;
+%             y{1} = data{train,1}(n,1:size(data{train,1},2)-1);
             %Calculate output
             for i = 2:size(neural,2)
                 for m = 1:neural(i)
@@ -96,7 +102,10 @@ while epoch < 1000
             biasOld = temp_bias;
         end
     end
-    if sum(E)/size(E,1) <= 0.02
+    EG(iGraph) = sum(E)/size(E,1);
+    iGraph = iGraph + 1;
+    disp(sum(E)/size(E,1))
+    if sum(E)/size(E,1) < 0.02%0.11%0.02
         break;
     end
     epoch = epoch + 1; 
@@ -117,5 +126,15 @@ for train = 1 : 10
             guess = find(y{size(neural,2)} == max(y{size(neural,2)}));
             truthTable{train,k}(fact,guess) = truthTable{train,k}(fact,guess) + 1;
         end
+    end
+end
+correct = zeros(10,2);
+for i = 1:10
+    for j = 1:2
+        count = 0;
+        for k = 1:size(truthTable{i,j},1)
+            count = count + truthTable{i,j}(k,k);
+        end
+        correct(i,j) = count/sum(sum(truthTable{i,j}));
     end
 end
