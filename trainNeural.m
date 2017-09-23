@@ -1,11 +1,14 @@
 clear
-data_set = struct2cell(load('xor2.mat'));
-data_set = data_set{1};
-data_crossed = crossValidation(data_set,2);
-data = cell(10,2);
-truthTable = cell(2,2);
-neural = [2,3,2];
+% data_set = struct2cell(load('xor2.mat'));
+% numClassLabel = 2;
+data_set = struct2cell(load('cross.mat'));
 numClassLabel = 2;
+data_set = data_set{1};
+data_crossed = crossValidation(data_set,numClassLabel);
+data = cell(10,2);
+truthTable = cell(10,2);
+numInput = size(data_set(1,:),2)-1;
+neural = [numInput,3,numClassLabel];
 %create variable
 y = cell(1,size(neural,2)); 
 weight = y; bias = y; gradient = y;
@@ -49,13 +52,12 @@ for i = 1:10
     numTrain = numTrain + size(data{i},1);
 end
 E = zeros(numTrain,1);
-xxx = 1;
 %Train
 while epoch < 1000
     indexE = 1;
     for train = 1 : 10
         for n = 1:size(data{train,1},1)
-            d = zeros(1,2); 
+            d = zeros(1,numClassLabel); 
             d(data{train,1}(n,size(data{train,1},2))) = 1;
             y{1} = data{train,1}(n,1:size(data{train,1},2)-1);
             %Calculate output
@@ -94,7 +96,7 @@ while epoch < 1000
             biasOld = temp_bias;
         end
     end
-    if sum(E)/size(E,1) <= 0.005
+    if sum(E)/size(E,1) <= 0.02
         break;
     end
     epoch = epoch + 1; 
