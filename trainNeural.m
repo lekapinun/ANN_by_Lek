@@ -1,16 +1,16 @@
 clear
 data_set = struct2cell(load('cross.mat'));
-numClassLabel = 3;
+numClassLabel = 2;
 data_set = data_set{1};
 numInput = size(data_set(1,:),2)-1;
-neural = [numInput,2,3,numClassLabel];
+neural = [numInput,3,numClassLabel];
 data_crossed = crossValidation(data_set,numClassLabel);
 data = cell(10,2);
 truthTable = cell(10,2);
 correct = cell(10,1);
 %create variable
-learningRate = 0.05; 
-momentumRate = 0.05;
+learningRate = 0.1; 
+momentumRate = 0.1;
 y = cell(1,size(neural,2)); 
 weight = y; bias = y; gradient = y;
 epoch = 1;
@@ -32,32 +32,38 @@ E = cell(10,1);
 collectE = cell(10,1);
 collectEpoch = cell(10,1);
 indexE = 1;
+%initialization
+y{1} = zeros(1,neural(1));
+bias{1} = y{1}; gradient{1} = y{1};
+for i = 2:size(neural,2);
+    y{i} = zeros(1,neural(i));
+    bias{i} = y{i}; gradient{i} = y{i};
+    weight{i} = zeros(neural(i),size(y{i-1},2));  
+end
+weightOld = weight;
+biasOld = bias;
+for i = 2:size(weight,2)
+    for m = 1:size(weight{i},1)
+        for n = 1:size(weight{i},2)
+            weight{i}(m,n) = randWeight(size(y{i-1},2));
+        end
+        bias{i}(m) = randWeight(size(y{i-1},2));
+    end
+end
+tempInit = {y, bias, weight, weightOld, biasOld};
 %ANN
 for train = 1 : 10
     disp('START')
     disp(train)
-    %initialization
+    y = tempInit{1};
+    bias = tempInit{2};
+    weight = tempInit{3};
+    weightOld = tempInit{4};
+    biasOld = tempInit{5};
     E{train} = zeros(size(data{train,1},1),1);
-    y{1} = zeros(1,neural(1));
-    bias{1} = y{1}; gradient{1} = y{1};
-    for i = 2:size(neural,2);
-        y{i} = zeros(1,neural(i));
-        bias{i} = y{i}; gradient{i} = y{i};
-        weight{i} = zeros(neural(i),size(y{i-1},2));  
-    end
-    for i = 2:size(weight,2)
-        for m = 1:size(weight{i},1)
-            for n = 1:size(weight{i},2)
-                weight{i}(m,n) = randWeight(size(y{i-1},2));
-            end
-            bias{i}(m) = randWeight(size(y{i-1},2));
-        end
-    end
-    weightOld = weight;
-    biasOld = bias;
     epoch = 1;
     %Train
-    while epoch <= 10000
+    while epoch <= 1000
         perm = randperm(size(data{train,1},1));
         for n = 1:size(data{train,1},1)
             d = zeros(1,numClassLabel); 
@@ -99,7 +105,7 @@ for train = 1 : 10
             biasOld = temp_bias;
         end
         collectEpoch{train} = epoch;
-        if sum(E{train})/size(E{train},1) < 0.05%0.02
+        if sum(E{train})/size(E{train},1) < 0.12%0.02
             %disp(sum(E{train})/size(E{train},1))
             disp(epoch)
             break;
@@ -132,3 +138,5 @@ for train = 1 : 10
         correct{train}(j) = count/sum(sum(truthTable{train,j}));
     end
 end
+
+plot(1:size(collectE{1},2),collectE{1},1:size(collectE{2},2),collectE{2},1:size(collectE{3},2),collectE{3},1:size(collectE{4},2),collectE{4},1:size(collectE{5},2),collectE{5},1:size(collectE{6},2),collectE{6},1:size(collectE{7},2),collectE{7},1:size(collectE{8},2),collectE{8},1:size(collectE{9},2),collectE{9},1:size(collectE{10},2),collectE{10})
