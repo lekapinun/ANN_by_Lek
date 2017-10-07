@@ -30,6 +30,7 @@ end
 E = cell(10,1);
 collectE = cell(10,1);
 collectEpoch = cell(10,1);
+collectWeight_Bias = cell(10,2);
 indexE = 1;
 %initialization
 y{1} = zeros(1,neural(1));
@@ -136,6 +137,8 @@ for train = 1 : 10
         end
         correct{train}(j) = count/sum(sum(truthTable{train,j}));
     end
+    collectWeight_Bias{train,1} = weight;
+    collectWeight_Bias{train,2} = bias;
 end
 
 plot(1:size(collectE{1},2),collectE{1},1:size(collectE{2},2),collectE{2},1:size(collectE{3},2),collectE{3},1:size(collectE{4},2),collectE{4},1:size(collectE{5},2),collectE{5},1:size(collectE{6},2),collectE{6},1:size(collectE{7},2),collectE{7},1:size(collectE{8},2),collectE{8},1:size(collectE{9},2),collectE{9},1:size(collectE{10},2),collectE{10})
