@@ -1,10 +1,9 @@
 clear
 data_set = struct2cell(load('cross.mat'));
-numClassLabel = 2;
 data_set = data_set{1};
 numInput = size(data_set(1,:),2)-1;
+[data_crossed,numClassLabel] = crossValidation(data_set);
 neural = [numInput,3,numClassLabel];
-data_crossed = crossValidation(data_set,numClassLabel);
 data = cell(10,2);
 truthTable = cell(10,2);
 correct = cell(10,1);
@@ -53,8 +52,8 @@ end
 tempInit = {y, bias, weight, weightOld, biasOld};
 %ANN
 for train = 1 : 10
-    disp('START')
-    disp(train)
+%     disp('START')
+%     disp(train)
     y = tempInit{1};
     bias = tempInit{2};
     weight = tempInit{3};
@@ -66,8 +65,8 @@ for train = 1 : 10
     while epoch <= 1000
         perm = randperm(size(data{train,1},1));
         for n = 1:size(data{train,1},1)
-            d = zeros(1,numClassLabel); 
-            d(data{train,1}(perm(n),size(data{train,1},2))) = 1;
+            d = zeros(1,numClassLabel)+0.1; 
+            d(data{train,1}(perm(n),size(data{train,1},2))) = 0.9;
             y{1} = data{train,1}(perm(n),1:size(data{train,1},2)-1);
             %Calculate output
             for i = 2:size(neural,2)
@@ -105,9 +104,9 @@ for train = 1 : 10
             biasOld = temp_bias;
         end
         collectEpoch{train} = epoch;
-        if sum(E{train})/size(E{train},1) < 0.12%0.02
+        if sum(E{train})/size(E{train},1) < 0.1
             %disp(sum(E{train})/size(E{train},1))
-            disp(epoch)
+%             disp(epoch)
             break;
         end
         collectE{train}(epoch) = sum(E{train})/size(E{train},1);
