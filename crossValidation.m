@@ -1,7 +1,5 @@
-% function [data_crossValidation] = crossValidation(data,numClassLabel)
-load('xor.mat');
-data = xor;
-numClassLabel = 2;
+function [data_crossValidation,numClassLabel] = crossValidation(data)
+numClassLabel = max(data(:,size(data,2)));
 [dataColumn,dataRow] = size(data);
 data_sperate = cell(numClassLabel,1);
 data_crossValidation = cell(10,1);
@@ -18,7 +16,7 @@ for i = 1:numClassLabel
 end
 for i = 1:numClassLabel
     index = 0;
-    sperate = size(data_sperate{i},1)/10;
+    sperate = round(size(data_sperate{i},1)/10);
     for j = 1:9
         data_crossValidation{j} = cat(1,data_crossValidation{j},data_sperate{i}(index+1:index+sperate,:));
         index = index + sperate;
